@@ -1,6 +1,6 @@
 open! Ctypes
 
-module C (F : Cstubs.FOREIGN) = struct
+module C (F : Ctypes.FOREIGN) = struct
   open! F
 
   module Status = struct
