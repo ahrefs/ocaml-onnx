@@ -14,31 +14,31 @@ let file_exists = Caml.Sys.file_exists
 let extract_flags c ~package =
   Option.bind (C.Pkg_config.get c) ~f:(C.Pkg_config.query ~package)
 
-let onnxruntime_flags () =
-  let config ~lib_dir =
-    let cflags = [ "-isystem"; Printf.sprintf "%s/include" lib_dir ] in
-    let libs =
-      [ Printf.sprintf "-Wl,-rpath,%s/lib" lib_dir
-      ; Printf.sprintf "-L%s/lib" lib_dir
-      ; "-lonnxruntime"
-      ]
-    in
-    { C.Pkg_config.cflags; libs }
+let config ~lib_dir =
+  let cflags = [ "-isystem"; Printf.sprintf "%s/include" lib_dir ] in
+  let libs =
+    [ Printf.sprintf "-Wl,-rpath,%s/lib" lib_dir
+    ; Printf.sprintf "-L%s/lib" lib_dir
+    ; "-lonnxruntime"
+    ]
   in
+  { C.Pkg_config.cflags; libs }
+
+let onnxruntime_flags c =
   match Caml.Sys.getenv_opt "LIBONNXRUNTIME" with
   | Some lib_dir -> config ~lib_dir
   | None ->
-    (match Caml.Sys.getenv_opt "OPAM_SWITCH_PREFIX" with
-    | Some prefix ->
-      let lib_dir = prefix /^ "lib" /^ "libonnxruntime" in
-      if file_exists lib_dir then config ~lib_dir else empty_flags
-    | None -> empty_flags)
+  match extract_flags c ~package:"libonnxruntime" with
+  | Some flags -> flags
+  | None ->
+  match Caml.Sys.getenv_opt "OPAM_SWITCH_PREFIX" with
+  | None -> empty_flags
+  | Some prefix ->
+    let lib_dir = prefix /^ "lib" /^ "libonnxruntime" in
+    if file_exists lib_dir then config ~lib_dir else empty_flags
 
 let () =
   C.main ~name:"onnxruntime-config" (fun _c ->
-      let onnxruntime_flags =
-        try onnxruntime_flags () with
-        | _ -> empty_flags
-      in
+      let onnxruntime_flags = onnxruntime_flags _c in
       C.Flags.write_sexp "c_flags.sexp" onnxruntime_flags.cflags;
       C.Flags.write_sexp "c_library_flags.sexp" onnxruntime_flags.libs)
