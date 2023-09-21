@@ -2,7 +2,7 @@
   Stb_image_write for OCaml by Frédéric Bour <frederic.bour(_)lakaban.net>
   To the extent possible under law, the person who associated CC0 with
   Stb_image_write for OCaml has waived all copyright and related or neighboring
-  rights to Stb_image_write for OCaml.
+  rights to Stb_image_write for OStdlib.
 
   You should have received a copy of the CC0 legalcode along with this
   work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

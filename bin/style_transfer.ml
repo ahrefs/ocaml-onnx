@@ -30,4 +30,4 @@ let () =
       output_path
   | argv ->
     Stdio.eprintf "usage: %s model.onnx input.png output.png\n%!" argv.(0);
-    Caml.exit 1
+    Stdlib.exit 1

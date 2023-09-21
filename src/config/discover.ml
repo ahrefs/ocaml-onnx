@@ -8,8 +8,8 @@ let combine (flags1 : C.Pkg_config.package_conf) (flags2 : C.Pkg_config.package_
   ; libs = flags1.libs @ flags2.libs
   }
 
-let ( /^ ) = Caml.Filename.concat
-let file_exists = Caml.Sys.file_exists
+let ( /^ ) = Stdlib.Filename.concat
+let file_exists = Stdlib.Sys.file_exists
 
 let extract_flags c ~package =
   Option.bind (C.Pkg_config.get c) ~f:(C.Pkg_config.query ~package)
@@ -25,13 +25,13 @@ let config ~lib_dir =
   { C.Pkg_config.cflags; libs }
 
 let onnxruntime_flags c =
-  match Caml.Sys.getenv_opt "LIBONNXRUNTIME" with
+  match Stdlib.Sys.getenv_opt "LIBONNXRUNTIME" with
   | Some lib_dir -> config ~lib_dir
   | None ->
   match extract_flags c ~package:"libonnxruntime" with
   | Some flags -> flags
   | None ->
-  match Caml.Sys.getenv_opt "OPAM_SWITCH_PREFIX" with
+  match Stdlib.Sys.getenv_opt "OPAM_SWITCH_PREFIX" with
   | None -> empty_flags
   | Some prefix ->
     let lib_dir = prefix /^ "lib" /^ "libonnxruntime" in

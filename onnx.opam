@@ -15,15 +15,15 @@ run-test: [
 ]
 
 depends: [
-  "base" {>= "v0.13.0" & < "v0.15"}
+  "base" {>= "v0.16"}
   "ctypes" {>= "0.5"}
   "dune" {>= "2.0.0" build}
   "dune-configurator"
   "ocaml" {>= "4.10"}
-  "ppx_expect"
-  "ppx_sexp_conv" {>= "v0.13.0" & < "v0.15"}
-  "ppx_sexp_message" {>= "v0.13.0" & < "v0.15"}
-  "sexplib" {>= "v0.13.0" & < "v0.15"}
+  "ppx_expect" {>= "v0.16" with-test}
+  "ppx_sexp_conv" {>= "v0.16"}
+  "ppx_sexp_message" {>= "v0.16"}
+  "sexplib" {>= "v0.16"}
   "stdio"
 ]
 

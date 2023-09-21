@@ -16,7 +16,7 @@ let check_and_release_status status =
 
 let get_string t ~on_null ~on_some ~fn =
   let ptr = Ctypes.(allocate_n (ptr char) ~count:1) in
-  if add_compact then Caml.Gc.compact ();
+  if add_compact then Stdlib.Gc.compact ();
   fn t ptr |> check_and_release_status;
   let ptr = Ctypes.( !@ ) ptr in
   if Ctypes.is_null ptr
@@ -49,11 +49,11 @@ let int_arr1 = CArray.make Ctypes.int 1
 
 let create (type a) (module M : S with type t = a Ctypes.ptr) create_fn =
   let arr = CArray.make M.t 1 in
-  if add_compact then Caml.Gc.compact ();
+  if add_compact then Stdlib.Gc.compact ();
   create_fn (CArray.start arr) |> check_and_release_status;
   let t = CArray.get arr 0 in
   if Ctypes.is_null t then failwith "function returned null despite ok status";
-  Caml.Gc.finalise M.release t;
+  Stdlib.Gc.finalise M.release t;
   t
 
 module Env = struct
@@ -75,7 +75,7 @@ module ModelMetadata = struct
   let custom_map_keys t =
     let ptr = Ctypes.(allocate_n (ptr (ptr char)) ~count:1) in
     let size_ptr = Ctypes.(allocate_n int64_t ~count:1) in
-    if add_compact then Caml.Gc.compact ();
+    if add_compact then Stdlib.Gc.compact ();
     W.ModelMetadata.custom_map_keys t ptr size_ptr |> check_and_release_status;
     let ptr = Ctypes.( !@ ) ptr in
     let size_ptr = Ctypes.( !@ ) size_ptr in
@@ -133,13 +133,13 @@ module TypeInfo = struct
 
   let cast_to_tensor_info t =
     let arr = CArray.make W.TensorTypeAndShapeInfo.t 1 in
-    if add_compact then Caml.Gc.compact ();
+    if add_compact then Stdlib.Gc.compact ();
     W.TypeInfo.cast_to_tensor_info t (CArray.start arr) |> check_and_release_status;
     let tensor_info = CArray.get arr 0 in
     if Ctypes.is_null t then failwith "function returned null despite ok status";
     (* When not null, [tensor_info] should not be freed and will be valid until [t] is
        released. *)
-    Caml.Gc.finalise (fun _ -> keep_alive t) tensor_info;
+    Stdlib.Gc.finalise (fun _ -> keep_alive t) tensor_info;
     tensor_info
 end
 
@@ -211,7 +211,7 @@ module Value = struct
     (match Bigarray.Genarray.layout ba with
     | C_layout -> ()
     | _ -> .);
-    if add_compact then Caml.Gc.compact ();
+    if add_compact then Stdlib.Gc.compact ();
     W.Value.tensor_memcpy_of_ptr
       t
       (Ctypes.bigarray_start Ctypes.genarray ba |> Ctypes.to_voidp)
@@ -223,7 +223,7 @@ module Value = struct
     (match Bigarray.Genarray.layout ba with
     | C_layout -> ()
     | _ -> .);
-    if add_compact then Caml.Gc.compact ();
+    if add_compact then Stdlib.Gc.compact ();
     W.Value.tensor_memcpy_to_ptr
       t
       (Ctypes.bigarray_start Ctypes.genarray ba |> Ctypes.to_voidp)
@@ -271,7 +271,7 @@ module Session = struct
         (module W.Session)
         (fun ptr -> W.Session.create ptr env session_options model_path)
     in
-    Caml.Gc.finalise
+    Stdlib.Gc.finalise
       (fun _ ->
         keep_alive env;
         keep_alive session_options)
@@ -339,7 +339,7 @@ module SessionWithArgs = struct
       CArray.set t.output_values i (Ctypes.null |> Ctypes.from_voidp W.Value.struct_)
     done;
     let status =
-      if add_compact then Caml.Gc.compact ();
+      if add_compact then Stdlib.Gc.compact ();
       W.Session.run
         t.session
         (CArray.start t.input_names_arr)
@@ -363,6 +363,6 @@ module SessionWithArgs = struct
         CArray.set t.output_values i (Ctypes.null |> Ctypes.from_voidp W.Value.struct_);
         if Ctypes.is_null output_value
         then failwith "run function returned null despite ok status";
-        Caml.Gc.finalise W.Value.release output_value;
+        Stdlib.Gc.finalise W.Value.release output_value;
         output_value)
 end
