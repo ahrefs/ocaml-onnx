@@ -450,3 +450,15 @@ OrtStatus* session_options_set_inter_op_num_threads(OrtSessionOptions *s, int n)
 OrtStatus* session_options_set_intra_op_num_threads(OrtSessionOptions *s, int n) {
   return current_ort()->SetIntraOpNumThreads(s, n);
 }
+
+OrtStatus* session_options_append_execution_provider_cuda_v2(OrtSessionOptions *s, OrtCUDAProviderOptionsV2 *cuda_options) {
+  return current_ort()->SessionOptionsAppendExecutionProvider_CUDA_V2(s, cuda_options);
+}
+
+OrtStatus* create_cuda_provider_options(OrtCUDAProviderOptionsV2 **ptr) {
+  return current_ort()->CreateCUDAProviderOptions(ptr);
+}
+
+void release_cuda_provider_options(OrtCUDAProviderOptionsV2 *ptr) {
+  return current_ort()->ReleaseCUDAProviderOptions(ptr);
+}

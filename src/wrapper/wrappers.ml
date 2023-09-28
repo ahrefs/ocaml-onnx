@@ -88,10 +88,10 @@ module ModelMetadata = struct
       in
       let names =
         List.init (Int64.to_int_exn size_ptr) ~f:(fun i ->
-            let ptr = Ctypes.( !@ ) (Ctypes.( +@ ) ptr i) in
-            let name = loop [] ptr |> List.rev |> String.of_char_list in
-            W.default_allocator_free (Ctypes.to_voidp ptr) |> check_and_release_status;
-            name)
+          let ptr = Ctypes.( !@ ) (Ctypes.( +@ ) ptr i) in
+          let name = loop [] ptr |> List.rev |> String.of_char_list in
+          W.default_allocator_free (Ctypes.to_voidp ptr) |> check_and_release_status;
+          name)
       in
       W.default_allocator_free (Ctypes.to_voidp ptr) |> check_and_release_status;
       Some names)
@@ -112,6 +112,10 @@ module ModelMetadata = struct
     Ctypes.( !@ ) ptr
 end
 
+module CudaProviderOptions = struct
+  let create () = create (module W.CudaProviderOptions) W.CudaProviderOptions.create
+end
+
 module SessionOptions = struct
   type t = W.SessionOptions.t
 
@@ -126,6 +130,12 @@ module SessionOptions = struct
     W.SessionOptions.set_intra_op_num_threads t (Option.value threads ~default:0)
     |> check_and_release_status;
     keep_alive t
+
+  let append_execution_provider_cuda t =
+    let cuda_provider_options = CudaProviderOptions.create () in
+    W.SessionOptions.append_execution_provider_cuda_v2 t cuda_provider_options
+    |> check_and_release_status;
+    keep_alive (t, cuda_provider_options)
 end
 
 module TypeInfo = struct
@@ -209,8 +219,8 @@ module Value = struct
 
   let copy_from_bigarray t ba =
     (match Bigarray.Genarray.layout ba with
-    | C_layout -> ()
-    | _ -> .);
+     | C_layout -> ()
+     | _ -> .);
     if add_compact then Stdlib.Gc.compact ();
     W.Value.tensor_memcpy_of_ptr
       t
@@ -221,8 +231,8 @@ module Value = struct
 
   let copy_to_bigarray t ba =
     (match Bigarray.Genarray.layout ba with
-    | C_layout -> ()
-    | _ -> .);
+     | C_layout -> ()
+     | _ -> .);
     if add_compact then Stdlib.Gc.compact ();
     W.Value.tensor_memcpy_to_ptr
       t
@@ -359,10 +369,10 @@ module SessionWithArgs = struct
        after the call to [run]. *)
     keep_alive (t, input_values);
     Array.init (CArray.length t.output_values) ~f:(fun i ->
-        let output_value = CArray.get t.output_values i in
-        CArray.set t.output_values i (Ctypes.null |> Ctypes.from_voidp W.Value.struct_);
-        if Ctypes.is_null output_value
-        then failwith "run function returned null despite ok status";
-        Stdlib.Gc.finalise W.Value.release output_value;
-        output_value)
+      let output_value = CArray.get t.output_values i in
+      CArray.set t.output_values i (Ctypes.null |> Ctypes.from_voidp W.Value.struct_);
+      if Ctypes.is_null output_value
+      then failwith "run function returned null despite ok status";
+      Stdlib.Gc.finalise W.Value.release output_value;
+      output_value)
 end

@@ -8,3 +8,9 @@
  (name style_transfer)
  (modules style_transfer)
  (libraries base stdio onnx_image_helper))
+
+(executable
+ (name gpu)
+ (modules gpu)
+ (preprocess (pps ppx_sexp_conv ppx_sexp_message))
+ (libraries base stdio onnx))

@@ -70,6 +70,18 @@ module C (F : Ctypes.FOREIGN) = struct
     let release = foreign "release_env" (t @-> returning void)
   end
 
+  module CudaProviderOptions = struct
+    type modl
+    type struct_ = modl Ctypes.structure
+    type t = struct_ ptr
+
+    let struct_ : struct_ typ = structure "OrtCUDAProviderOptionsV2"
+    let t : t typ = ptr struct_
+    let create = foreign "create_cuda_provider_options" (ptr t @-> returning Status.t)
+
+    let release = foreign "release_cuda_provider_options" (t @-> returning void)
+  end
+
   module SessionOptions = struct
     type modl
     type struct_ = modl Ctypes.structure
@@ -84,6 +96,11 @@ module C (F : Ctypes.FOREIGN) = struct
 
     let set_intra_op_num_threads =
       foreign "session_options_set_intra_op_num_threads" (t @-> int @-> returning Status.t)
+
+    let append_execution_provider_cuda_v2 =
+      foreign
+        "session_options_append_execution_provider_cuda_v2"
+        (t @-> CudaProviderOptions.t @-> returning Status.t)
 
     let release = foreign "release_session_options" (t @-> returning void)
   end

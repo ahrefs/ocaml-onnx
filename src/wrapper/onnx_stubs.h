@@ -7,6 +7,7 @@
 
 OrtStatus* create_env(char *, OrtEnv **);
 OrtStatus* create_session_options(OrtSessionOptions **);
+OrtStatus* create_cuda_provider_options(OrtCUDAProviderOptionsV2 **);
 OrtStatus* create_session(OrtSession **, OrtEnv *, OrtSessionOptions *, char *);
 OrtStatus *create_tensor_with_data_as_ort_value(void *, size_t, int64_t *, size_t, int, OrtValue **);
 OrtStatus *create_tensor_as_ort_value(int64_t *, size_t, int, OrtValue **);
@@ -23,6 +24,7 @@ OrtStatus* session_run_1_1(OrtSession *, char *, char *, OrtValue*, OrtValue **)
 OrtStatus* session_run(OrtSession *, char **, int, char **, int, OrtValue **, OrtValue **);
 OrtStatus* session_options_set_inter_op_num_threads(OrtSessionOptions *, int);
 OrtStatus* session_options_set_intra_op_num_threads(OrtSessionOptions *, int);
+OrtStatus* session_options_append_execution_provider_cuda_v2(OrtSessionOptions *, OrtCUDAProviderOptionsV2 *);
 OrtStatus* value_get_type_info(OrtValue *, OrtTypeInfo **);
 OrtStatus* value_is_tensor(OrtValue *, int *);
 OrtStatus* value_get_tensor_type_and_shape(OrtValue *, OrtTensorTypeAndShapeInfo **);
@@ -55,4 +57,5 @@ void release_value(OrtValue *);
 void release_type_info(OrtTypeInfo *);
 void release_tensor_type_and_shape_info(OrtTensorTypeAndShapeInfo *);
 void release_model_metadata(OrtModelMetadata *);
+void release_cuda_provider_options(OrtCUDAProviderOptionsV2 *);
 #endif

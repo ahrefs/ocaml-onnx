@@ -56,6 +56,7 @@ module SessionOptions : sig
   (* Use [threads:None] to use the default number of threads. *)
   val set_inter_op_num_threads : t -> threads:int option -> unit
   val set_intra_op_num_threads : t -> threads:int option -> unit
+  val append_execution_provider_cuda : t -> unit
 end
 
 module Session : sig
