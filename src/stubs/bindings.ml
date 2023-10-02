@@ -79,6 +79,11 @@ module C (F : Ctypes.FOREIGN) = struct
     let t : t typ = ptr struct_
     let create = foreign "create_cuda_provider_options" (ptr t @-> returning Status.t)
 
+    let update =
+      foreign
+        "cuda_provider_options_update_cuda_provider_options"
+        (t @-> ptr string @-> ptr string @-> size_t @-> returning Status.t)
+
     let release = foreign "release_cuda_provider_options" (t @-> returning void)
   end
 

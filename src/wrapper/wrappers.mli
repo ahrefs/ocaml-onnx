@@ -50,13 +50,16 @@ end
 
 module SessionOptions : sig
   type t
+  type cuda_options
 
   val create : unit -> t
+  val create_cuda_options : unit -> cuda_options
+  val update_cuda_options : cuda_options -> (string * string) list -> unit
 
   (* Use [threads:None] to use the default number of threads. *)
   val set_inter_op_num_threads : t -> threads:int option -> unit
   val set_intra_op_num_threads : t -> threads:int option -> unit
-  val append_execution_provider_cuda : t -> unit
+  val append_execution_provider_cuda : t -> cuda_options -> unit
 end
 
 module Session : sig

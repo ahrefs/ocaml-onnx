@@ -455,6 +455,10 @@ OrtStatus* session_options_append_execution_provider_cuda_v2(OrtSessionOptions *
   return current_ort()->SessionOptionsAppendExecutionProvider_CUDA_V2(s, cuda_options);
 }
 
+OrtStatus* cuda_provider_options_update_cuda_provider_options(OrtCUDAProviderOptionsV2 *cuda_options, const char* const* keys, const char* const* values, size_t n_keys) {
+  return current_ort()->UpdateCUDAProviderOptions(cuda_options, keys, values, n_keys);
+}
+
 OrtStatus* create_cuda_provider_options(OrtCUDAProviderOptionsV2 **ptr) {
   return current_ort()->CreateCUDAProviderOptions(ptr);
 }

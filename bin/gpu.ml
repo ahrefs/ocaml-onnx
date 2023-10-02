@@ -8,9 +8,15 @@ let () =
     if Array.length argv > 1 then argv.(1) else "tests/add_one.onnx"
   in
   let env = Env.default () in
-  let options = Session_options.create ~with_cuda:true () in
+  let cuda_options =
+    match Session_options.create_cuda_options ~device_id:1 () with
+    | Ok cuda_options -> Some cuda_options
+    | Error err ->
+      Stdio.prerr_endline @@ "failed to create cuda options" ^ err;
+      None
+  in
+  let options = Session_options.(create ?cuda_options ()) in
   let session = Session.create env options ~model_path in
-  
   Stdio.printf "%d %d\n%!" (Session.input_count session) (Session.output_count session);
   let ba = Bigarray.Array1.create Float32 C_layout 1 in
   ba.{0} <- 3.14159265358979;

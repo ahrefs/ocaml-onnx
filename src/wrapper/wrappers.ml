@@ -112,12 +112,12 @@ module ModelMetadata = struct
     Ctypes.( !@ ) ptr
 end
 
-module CudaProviderOptions = struct
-  let create () = create (module W.CudaProviderOptions) W.CudaProviderOptions.create
-end
-
 module SessionOptions = struct
   type t = W.SessionOptions.t
+  type cuda_options = W.CudaProviderOptions.t
+
+  let create_cuda_options () =
+    create (module W.CudaProviderOptions) W.CudaProviderOptions.create
 
   let create () = create (module W.SessionOptions) W.SessionOptions.create
 
@@ -131,11 +131,20 @@ module SessionOptions = struct
     |> check_and_release_status;
     keep_alive t
 
-  let append_execution_provider_cuda t =
-    let cuda_provider_options = CudaProviderOptions.create () in
-    W.SessionOptions.append_execution_provider_cuda_v2 t cuda_provider_options
+  let append_execution_provider_cuda t cuda_options =
+    W.SessionOptions.append_execution_provider_cuda_v2 t cuda_options
     |> check_and_release_status;
-    keep_alive (t, cuda_provider_options)
+    keep_alive t
+
+  let update_cuda_options opts kv =
+    let keys = List.map ~f:fst kv in
+    let values = List.map ~f:snd kv in
+    let n = Unsigned.Size_t.of_int @@ List.length kv in
+    let in_keys = CArray.of_list Ctypes.(string) keys in
+    let in_values = CArray.of_list Ctypes.(string) values in
+    W.CudaProviderOptions.update opts (CArray.start in_keys) (CArray.start in_values) n
+    |> check_and_release_status;
+    keep_alive (opts, in_keys, in_values)
 end
 
 module TypeInfo = struct

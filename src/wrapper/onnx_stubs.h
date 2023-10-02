@@ -25,6 +25,7 @@ OrtStatus* session_run(OrtSession *, char **, int, char **, int, OrtValue **, Or
 OrtStatus* session_options_set_inter_op_num_threads(OrtSessionOptions *, int);
 OrtStatus* session_options_set_intra_op_num_threads(OrtSessionOptions *, int);
 OrtStatus* session_options_append_execution_provider_cuda_v2(OrtSessionOptions *, OrtCUDAProviderOptionsV2 *);
+OrtStatus* cuda_provider_options_update_cuda_provider_options(OrtCUDAProviderOptionsV2 *, const char* const*, const char* const*, size_t);
 OrtStatus* value_get_type_info(OrtValue *, OrtTypeInfo **);
 OrtStatus* value_is_tensor(OrtValue *, int *);
 OrtStatus* value_get_tensor_type_and_shape(OrtValue *, OrtTensorTypeAndShapeInfo **);
